@@ -1,8 +1,8 @@
 # Parameter Resolver
 
 ![Test Suite](https://github.com/susina/param-resolver/actions/workflows/test.yml/badge.svg)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/b2ce3e357481f2742e36/test_coverage)](https://codeclimate.com/github/susina/param-resolver/test_coverage)
-[![Maintainability](https://api.codeclimate.com/v1/badges/b2ce3e357481f2742e36/maintainability)](https://codeclimate.com/github/susina/param-resolver/maintainability)
+[![Maintainability](https://qlty.sh/badges/15b08566-7e7a-46ca-b120-2e24af96de83/maintainability.svg)](https://qlty.sh/gh/susina/projects/param-resolver)
+[![Code Coverage](https://qlty.sh/badges/15b08566-7e7a-46ca-b120-2e24af96de83/test_coverage.svg)](https://qlty.sh/gh/susina/projects/param-resolver)
 
 ParamResolver is a small class to resolve parameters in configuration arrays.
 It's heavily inspired on [Symfony ParameterBag](src/Symfony/Component/DependencyInjection/ParameterBag/ParameterBag.php) class.
@@ -75,7 +75,8 @@ You can escape the special character % by doubling it:
 
 jeans property now contains the string '20%'.
 
-> _Note_: Both keys and values of your array can contain parameters.
+> [!Note]
+> Both keys and values of your array can contain parameters.
 
 ### Special parameters: environment variables
 

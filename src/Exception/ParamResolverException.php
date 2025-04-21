@@ -15,6 +15,6 @@
 
 namespace Susina\ParamResolver\Exception;
 
-class ParamResolverException extends \RuntimeException
+final class ParamResolverException extends \RuntimeException
 {
 }

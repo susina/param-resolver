@@ -23,9 +23,9 @@
         }
     },
     "require-dev": {
-        "psalm/phar": "^5",
+        "psalm/phar": "^6",
         "susina/coding-standard": "^2",
-        "pestphp/pest": "^2"
+        "pestphp/pest": "^3"
     },
     "scripts": {
         "analytics": "php vendor/bin/psalm.phar",

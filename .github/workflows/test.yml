@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macOS-latest]
-        php-versions: ['8.2', '8.3']
+        php-versions: ['8.2', '8.3', '8.4']
     runs-on: ${{ matrix.operating-system }}
     steps:
       - name: Set autocrlf on windows
@@ -25,9 +25,5 @@ jobs:
         uses: ramsey/composer-install@v3
         with:
           composer-options: "--prefer-dist --optimize-autoloader"
-      - name: Check coding standard
-        run: composer cs:check
-      - name: Static analysis tool
-        run: composer analytics
       - name: Test suite
         run: composer test

@@ -21,7 +21,7 @@ use Susina\ParamResolver\Exception\ParamResolverException;
 /**
  * Utility class to perform validations.
  */
-class Validator
+final class Validator
 {
     /**
      * Check if a value is only numeric or string.

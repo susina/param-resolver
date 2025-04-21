@@ -18,7 +18,7 @@ namespace Susina\ParamResolver;
 use Generator;
 use Susina\ParamResolver\Exception\ParamResolverException;
 
-class ParamResolver
+final class ParamResolver
 {
     /**
      * If the array with parameters is resolved.
