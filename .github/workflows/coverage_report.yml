@@ -4,25 +4,44 @@ on:
   push:
     branches: [master]
 jobs:
+  install_tools:
+    name: Install tools
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install tools
+        uses: ngmy/phive-install-action@master
+      - name: Upload tools to artifact store
+        uses: actions/upload-artifact@v7
+        with:
+          name: tools
+          path: tools
   coverage:
     name: coverage
+    needs: install_tools
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
+          php-version: 8.5
           coverage: pcov
       - name: Install composer dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: "--prefer-dist --optimize-autoloader"
+      - name: Download tools from artifact store
+        uses: actions/download-artifact@v7
+        with:
+          name: tools
+          path: tools
       - name: Build the code coverage report
         run: composer coverage:clover
       - name: Upload code coverage report
-        uses: qltysh/qlty-action/coverage@v1
+        uses: qltysh/qlty-action/coverage@v2
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: clover.xml

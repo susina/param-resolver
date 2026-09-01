@@ -3,4 +3,5 @@ clover.xml
 composer.phar
 composer.lock
 coverage/
+tools/
 vendor/

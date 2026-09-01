@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
- * Copyright (c) Cristiano Cinotti 2024.
+ * Copyright (c) Cristiano Cinotti 2024 - 2026.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,6 +27,10 @@ final class Validator
 {
     /**
      * Check if a value is only numeric or string.
+     *
+     * @param mixed $value The value to validate.
+     * @throws ParamResolverException If the value is not numeric or string.
+     * @return string The validated string value.
      */
     public static function validateString(mixed $value): string
     {
@@ -37,6 +43,11 @@ final class Validator
 
     /**
      * Check if a generator is correctly closed.
+     *
+     * @param Generator $value The generator to validate.
+     * @param int|string $key The key of the parameter being validated.
+     * @throws ParamResolverException If the generator is not valid.
+     * @return Generator The validated generator.
      */
     public static function validateGenerator(Generator $value, int|string $key): Generator
     {

@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
- * Copyright (c) Cristiano Cinotti 2024.
+ * Copyright (c) Cristiano Cinotti 2024 - 2026.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,21 +23,19 @@ use Susina\ParamResolver\Exception\ParamResolverException;
 final class ParamResolver
 {
     /**
-     * If the array with parameters is resolved.
+     * @var bool $resolved Flag to indicate if the parameters have been resolved.
+     * It is used to prevent multiple resolutions of the same configuration array.
      */
     private bool $resolved = false;
 
     /**
-     * The array containing the values to manipulate while resolving parameters.
-     * Usually, it is a configuration array.
-     * It's useful, in particular, for resolve() and get() method.
+     * @var mixed[] $config The array containing the values to manipulate while resolving parameters.
+     * Usually, it is a configuration array. It's useful, in particular, for resolve() and get() method.
      */
     private array $config = [];
 
     /**
      * Static constructor.
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function create(): self
     {
@@ -45,9 +45,10 @@ final class ParamResolver
     /**
      * Replaces parameter placeholders (%name%) by their values for all parameters.
      *
-     * @param array $configuration The array to resolve
-     *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @param mixed[] $configuration The array to resolve
+
+     * @throws ParamResolverException If a parameter is not found or if a circular reference is detected
+     * @return mixed[] The resolved array
      */
     public function resolve(array $configuration): array
     {
@@ -58,7 +59,7 @@ final class ParamResolver
         $this->config = $configuration;
         $parameters = [];
         foreach ($configuration as $key => $value) {
-            $key = $this->resolveValue($key);
+            $key = $this->resolveKey($key);
             $value = $this->resolveValue($value);
             $parameters[$key] = $this->unescapeValue($value);
         }
@@ -72,8 +73,9 @@ final class ParamResolver
      * Replaces parameter placeholders (%name%) by their values.
      *
      * @param mixed $value The value to be resolved
-     * @param array $resolving An array of keys that are being resolved (used internally to detect circular references)
+     * @param array<string, true> $resolving An array of keys that are being resolved (used internally to detect circular references)
      *
+     * @throws ParamResolverException If a parameter is not found or if a circular reference is detected.
      * @return mixed The resolved value
      */
     private function resolveValue(mixed $value, array $resolving = []): mixed
@@ -81,7 +83,7 @@ final class ParamResolver
         if (is_array($value)) {
             $args = [];
             foreach ($value as $k => $v) {
-                $args[$this->resolveValue($k, $resolving)] = $this->resolveValue($v, $resolving);
+                $args[$this->resolveKey($k, $resolving)] = $this->resolveValue($v, $resolving);
             }
 
             return $args;
@@ -98,8 +100,9 @@ final class ParamResolver
      * Resolves parameters inside a string
      *
      * @param string $value The string to resolve
-     * @param array $resolving An array of keys that are being resolved (used internally to detect circular references)
+     * @param array<string, true> $resolving An array of keys that are being resolved (used internally to detect circular references)
      *
+     * @throws ParamResolverException If a parameter is not found or if a circular reference is detected.
      * @return mixed The resolved value
      */
     private function resolveString(string $value, array $resolving = []): mixed
@@ -112,9 +115,9 @@ final class ParamResolver
          * otherwise, it is replaced with the resolved string or number.
          */
 
-        /** @var mixed */
-        $onlyKey = null;
-        $replaced = preg_replace_callback('/%([^%\s]*+)%/', function (array $match) use ($resolving, $value, &$onlyKey) {
+        /** @var string */
+        $onlyKey = '';
+        $replaced = preg_replace_callback('/%([^%\s]*+)%/', function (array $match) use ($resolving, $value, &$onlyKey): string {
             $key = $match[1];
             $env = $this->parseEnvironmentParams($key);
 
@@ -122,7 +125,7 @@ final class ParamResolver
                 $key === '' => '%%',
                 $env !== null => $env,
                 isset($resolving[$key]) => throw new ParamResolverException("Circular reference detected for parameter '$key'."),
-                default => null
+                default => null,
             };
 
             if ($out !== null) {
@@ -142,7 +145,7 @@ final class ParamResolver
             return $this->resolveString($resolved, $resolving);
         }, $value);
 
-        if ($setKey = isset($onlyKey)) {
+        if ($setKey = ($onlyKey !== '')) {
             $resolving[$onlyKey] = true;
         }
 
@@ -194,7 +197,7 @@ final class ParamResolver
      * Scan recursively an array to find a value of a given key.
      *
      * @param int|string $propertyKey The array key
-     * @param array $config The array to scan
+     * @param mixed[] $config The array to scan
      *
      * @return \Generator The value or null if not found
      */
@@ -227,5 +230,24 @@ final class ParamResolver
         }
 
         return Validator::validateEnvParam(substr($value, 4));
+    }
+
+    /**
+     * Resolve a value used as an array key.
+     *
+     * @param int|string $key
+     * @param array<string, true> $resolving An array of keys that are being resolved (used internally to detect circular references)
+     * @throws ParamResolverException
+     * @return int|string
+     */
+    private function resolveKey(int|string $key, array $resolving = []): int|string
+    {
+        $resolved = $this->resolveValue($key, $resolving);
+
+        if (!is_string($resolved) && !is_int($resolved)) {
+            throw new ParamResolverException("Resolved key must be a string or an integer, got " . gettype($resolved));
+        }
+
+        return $resolved;
     }
 }

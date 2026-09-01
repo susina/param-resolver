@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
- * Copyright (c) Cristiano Cinotti 2024.
+ * Copyright (c) Cristiano Cinotti 2024 - 2026.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,6 +17,4 @@
 
 namespace Susina\ParamResolver\Exception;
 
-final class ParamResolverException extends \RuntimeException
-{
-}
+final class ParamResolverException extends \RuntimeException {}
